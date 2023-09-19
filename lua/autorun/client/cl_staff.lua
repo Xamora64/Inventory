@@ -34,14 +34,48 @@ function inventory.Staff (_x, _y)
 		draw.SimpleText("Show offline player", "roboto_middle", 40, 50, Color(255, 255, 255))
 	end
 
+	-- Refresh inventory of player
+	inventory.ButtonStaffRefresh(inventory.panelStaff, x * 0.4 - 82 - 60, 0)
+
 	-- show offline/online players
 	inventory.ButtonStaffShow(inventory.panelStaff)
 
 	inventory.StaffShow()
 end
 
-function inventory.ButtonStaffShow(panel)
-    local buttonStaffShow = vgui.Create("DButton", panel)
+function inventory.ButtonStaffRefresh(parent, x, y, text)
+	
+	if IsValid(buttonRefresh) then buttonRefresh:Close() end
+    local buttonRefresh = vgui.Create("DButton", parent)
+    buttonRefresh:SetText("")
+    buttonRefresh:SetSize(80, 25)
+    buttonRefresh:DockMargin(10, 10, 10 ,10)
+    buttonRefresh:SetPos(x, y)
+    buttonRefresh.Paint = function(self, w, h)
+        surface.SetDrawColor(0, 0, 0, 255)
+        surface.DrawRect(0, 0, w, h)
+		if text == nil then
+        	draw.SimpleText("Refresh", "roboto_middle", w / 2, h / 2, Color(240, 240, 240),  TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		else 
+			draw.SimpleText(text, "roboto_big", w / 2, h / 2 - 4, Color(240, 240, 240),  TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		end
+    end
+    buttonRefresh.DoClick = function()
+		if showOffline then
+			net.Start("inv_asks_all")
+			net.SendToServer()
+		else
+			net.Start("inv_asks_online")
+			net.SendToServer()
+		end
+
+		inventory.ButtonStaffRefresh(parent, x, y, "⚪")
+
+    end
+end
+
+function inventory.ButtonStaffShow(parent)
+    local buttonStaffShow = vgui.Create("DButton", parent)
 
 	local color = Color(240, 0, 0, 255)
 	if showOffline then
@@ -66,7 +100,7 @@ function inventory.ButtonStaffShow(panel)
 			net.Start("inv_asks_online")
 			net.SendToServer()
 		end
-		inventory.ButtonStaffShow(panel, x, y)
+		inventory.ButtonStaffShow(parent)
 	end
 end
 
@@ -86,7 +120,7 @@ function inventory.StaffShow()
     end
     function sbar.btnUp:Paint(w, h)
         draw.RoundedBox(0, 0, 0, w, h, Color(20, 20, 20, 255))
-    end
+    end	
     function sbar.btnDown:Paint(w, h)
         draw.RoundedBox(0, 0, 0, w, h, Color(20, 20, 20, 255))
     end
@@ -139,7 +173,7 @@ function inventory.StaffInv(plyInfo, ID64)
 	if IsValid(inventory.panelStaffInv) then inventory.panelStaffInv:Close() end
 	inventory.panelStaffInv = vgui.Create("DFrame")
 	table.insert(Panels, inventory.panelStaffInv)
-	inventory.Background(inventory.panelStaffInv, "Inventory of " .. plyInfo.name)
+	inventory.Background(inventory.panelStaffInv, "Inventory of " .. plyInfo.name, plyInfo.numberItem)
 
 	inventory.ButtonClose(x - 65, 7, inventory.panelStaffInv, function ()
 		if IsValid(inventory.panelStaffInv) then inventory.panelStaffInv:Close() end
@@ -172,7 +206,7 @@ end
 
 function StaffRefresh(plyInfo, ID64)
 		if IsValid(inventory.panelStaff) then
-			inventory.StaffShow()
+			inventory.Staff(x, y)
 		end
 
 		if plyInfo == nil or ID64 == nil then return end
@@ -182,11 +216,17 @@ function StaffRefresh(plyInfo, ID64)
 		end
 end
 
+function clear(tableToClear)
+	for value in pairs(tableToClear) do
+		tableToClear[value] = nil
+	end
+end
+
 net.Receive("inv_sends_online", function()
 	local readTable = net.ReadTable()
-	if readTable == invs then return end
 
 	if not showOffline then
+		clear(invs)
 		invs = readTable
 		StaffRefresh()
 	end
@@ -194,16 +234,15 @@ end)
 
 net.Receive("inv_sends_all", function()
 	local readTable = net.ReadTable()
-	if readTable == invs then return end
 
 	if showOffline then
+		clear(invs)
 		invs = readTable
 		StaffRefresh()
 	end
 end)
 
 net.Receive("inv_send", function()
-	print("INV SEND")
 	local readTable = net.ReadTable()
 	local ID64 = readTable.ID64
 	local inv = readTable.inv

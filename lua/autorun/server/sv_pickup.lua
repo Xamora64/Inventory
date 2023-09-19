@@ -1,5 +1,5 @@
 local time_to_wait = 0.1
-local time_to_wait_inventory = config.timer_press
+local time_to_wait_inventory = config.long_time_use_timer
 
 local _P = FindMetaTable("Player")
 
@@ -58,7 +58,7 @@ hook.Add("PlayerCanPickupWeapon", "can_pickup", function(ply, weapon)
     end
 
     if not ply.pressed and CurTime() - ply.time_press < time_to_wait then
-        if (config.can_take_same_weapon or (not config.can_take_same_weapon and not ply:HasWeapon(weapon:GetClass()))) then
+        if (config.can_pickup_same_weapon or (not config.can_pickup_same_weapon and not ply:HasWeapon(weapon:GetClass()))) then
             ply.time_press = 0
             return true 
         end

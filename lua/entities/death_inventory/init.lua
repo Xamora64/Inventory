@@ -52,7 +52,7 @@ function ENT:Initialize()
 
 	if not config.drop_dispawn then return end
     timer.Simple(config.timer_dispawn, function()
-		if not IsVlid(self) then return end
+		if not IsValid(self) then return end
 		self:Remove()
 	end)
 end

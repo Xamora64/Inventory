@@ -1,18 +1,21 @@
 config = config or {}
 
--- Max place in inventory ( -1 = no limit )
-config.max = 20
+-- Both Side
 
--- default button to open the inventory
-config.key_open = KEY_I
+    -- Max place in inventory ( -1 = no limit )
+    config.max = 20
 
--- default button to take a weapon or entity
-config.key_take = KEY_T
+    -- default button to open the inventory
+    config.key_open = KEY_I
 
--- Acces to the inventory's menu staff
-config.acces_staff = {"superadmin", "admin"}
+    -- default button to take a weapon or entity
+    config.key_take = KEY_T
 
-if CLIENT then
+    -- Acces to the inventory's menu staff
+    config.acces_staff = {"superadmin", "admin"}
+
+-- Client Side
+
     -- if size of case is relative (same size for all screen)
     config.relative_item = true 
     -- if relative_item is "true", what size you want ? (default = 1.2)
@@ -33,7 +36,10 @@ if CLIENT then
     -- gap between each case in y
     config.gap_y = 20
 
-elseif SERVER then
+if CLIENT and not IsInGroupStaff(LocalPlayer()) then return end
+
+-- Server Side
+
     -- System pickup allow
     config.pickup = true
 
@@ -41,8 +47,8 @@ elseif SERVER then
     config.long_time_use = true
 
     -- timer to wait when he take with 'E'
-    config.timer_press = 1.5
- 
+    config.long_time_use_timer = 1.5
+
     -- timer to wait when he press to the button for take
     config.timer_take = 0.1
 
@@ -52,31 +58,31 @@ elseif SERVER then
     -- distance to drop (default = 65)
     config.distance_drop = 65
 
-	-- Press long time press on take button, put the weapon in hand in the inventory
-	config.long_time_take_weapon = false
-	config.timer_take_weapon = 2
+    -- Press long time press on take button, put the weapon in hand in the inventory
+    config.long_time_take_weapon = false
+    config.timer_take_weapon = 2
 
     -- Allow message send to the player
     config.message = true
 
     -- if player die his inventory is drop
-    config.keep_inventory = true
+    config.keep_inventory = false
     -- if keep_inventory is false, drop the inventory
-    config.drop_inventory = false
+    config.drop_inventory = true
     config.model_inventory = "models/props_c17/suitcase001a.mdl"
     -- if you change the model you maybe need to increase or reduce this
     config.height_spawn = 10
-	-- if the inventory dispawn with the timer
-	config.drop_dispawn = true
-	-- if the inventory dispawn is true; set the timer before it dispawn, in second
-	config.timer_dispawn = 120
+    -- if the inventory dispawn with the timer
+    config.drop_dispawn = true
+    -- if the inventory dispawn is true; set the timer before it dispawn, in second
+    config.timer_dispawn = 120
 
-	-- players can move death_inventory with gravity gun
-	config.death_inventory_gravity_gun = false
-	-- players can move death_inventory with physic gun
-	config.death_inventory_physic_gun = false
-	-- superadmin can move death_inventory with physic/gravity gun
-	config.death_inventory_gun_superadmin = true
+    -- players can move death_inventory with gravity gun
+    config.death_inventory_gravity_gun = false
+    -- players can move death_inventory with physic gun
+    config.death_inventory_physic_gun = false
+    -- superadmin can move death_inventory with physic/gravity gun
+    config.death_inventory_gun_superadmin = true
 
     -- if player can take entity
     config.can_take_entity = true
@@ -85,17 +91,15 @@ elseif SERVER then
     config.can_take_weapon = true
 
     -- if play can take two same weapon in hot bar weapon
-    config.can_take_same_weapon = true 
+    config.can_pickup_same_weapon = true 
 
     -- Blacklist weapon in inventory by classname
     -- ex: config.blacklist_weapon = {"weapon_357", "weapon_crossbow"}
     config.blacklist_weapon = {"weapon_physgun", "gmod_tool", "weapon_fists", "gmod_camera"}
 
     -- Blacklist entity in inventory by classname
-	-- ex config.blacklist_entity = {"item_ammo_357"}
+    -- ex config.blacklist_entity = {"item_ammo_357"}
     config.blacklist_entity = {}
 
-	-- Model 3D for the bank
-	config.model_bank = "models/props_wasteland/controlroom_storagecloset001a.mdl"
-
-end
+    -- Model 3D for the bank
+    config.model_bank = "models/props_wasteland/controlroom_storagecloset001a.mdl"

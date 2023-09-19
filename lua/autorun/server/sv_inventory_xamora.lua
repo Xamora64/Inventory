@@ -74,11 +74,14 @@ function NameLoadAll()
 end
 
 function InvSave(ply)
-	local ID = ply:SteamID64()
-    if not file.Exists("inventory_xamora", "DATA") then file.CreateDir("inventory_xamora") end
-    if not file.Exists("inventory_xamora/" .. ID, "DATA") then file.CreateDir("inventory_xamora/" .. ID) end
-    file.Write("inventory_xamora/" .. ID .. "/inventory.txt", util.TableToJSON(GetInv(ply)))
+    InvSaveID64(ply:SteamID64())
 	InvSync(ply)
+end
+
+function InvSaveID64(ID64)
+    if not file.Exists("inventory_xamora", "DATA") then file.CreateDir("inventory_xamora") end
+    if not file.Exists("inventory_xamora/" .. ID64, "DATA") then file.CreateDir("inventory_xamora/" .. ID64) end
+    file.Write("inventory_xamora/" .. ID64 .. "/inventory.txt", util.TableToJSON(GetInvID64(ID64), true))
 end
 
 function InvLoad(ply)
@@ -135,7 +138,7 @@ function KeySave(ply)
 	local ID = ply:SteamID64()
     if not file.Exists("inventory_xamora", "DATA") then file.CreateDir("inventory_xamora") end
     if not file.Exists("inventory_xamora/" .. ID, "DATA") then file.CreateDir("inventory_xamora/" .. ID) end
-    file.Write("inventory_xamora/" .. ID .. "/key.txt", util.TableToJSON(GetKey(ply)))
+    file.Write("inventory_xamora/" .. ID .. "/key.txt", util.TableToJSON(GetKey(ply), true))
 	KeySync(ply)
 end
 
@@ -638,6 +641,9 @@ net.Receive("inv_staff_remove", function(len, ply)
 	local IDItem = tonumber(splitMessage[1])
 	local ID64 = splitMessage[2]
 
+    print(IDItem)
+    print(ID64)
+
 	InvRemoveItemID64(ID64, IDItem)
 
 	SendInvPlayer(ply, ID64)
@@ -651,13 +657,15 @@ function InvRemoveItemID64(ID64, IDItem)
 	local entityRemoved = inv[IDItem]
 	inv[IDItem] = nil
 
+    InvSaveID64(ID64)
+
 	local ply = player.GetBySteamID64(ID64)
 	if ply then
 		SyncNumberItem(ply)
 		net.Start("inv_remove")
 		net.WriteInt(ID64, 32)
 		net.Send(ply)
-		InvSave(ply)
+        InvSync(ply)
 	end
 
 	return entityRemoved

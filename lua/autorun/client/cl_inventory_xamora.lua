@@ -1,34 +1,29 @@
 surface.CreateFont( "roboto_small", {
 	font = "Roboto", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
-	extended = false,
-	size = ScreenScale(4),
+	size = 14,
 } )
 
 surface.CreateFont( "roboto_middle_small", {
 	font = "Roboto", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
-	extended = false,
-	size = ScreenScale(6),
+	size = 18,
 } )
 
 surface.CreateFont( "roboto_middle", {
 	font = "Roboto", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
-	extended = false,
-	size = ScreenScale(8),
+	size = 22,
+} )
+
+surface.CreateFont( "roboto_middle_big", {
+	font = "Roboto", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
+	size = 28,
 } )
 
 surface.CreateFont( "roboto_big", {
 	font = "Roboto", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
-	extended = false,
-	size = ScreenScale(12),
+	size = 34,
 } )
 
 local inv = inv or {}
-
-concommand.Add("inv_init", function(ply)
-    local inv = {}
-    net.Start("inv_init")
-    net.SendToServer()
-end)
 
 net.Receive("inv_give", function()
     local new_item = net.ReadTable()
@@ -101,7 +96,7 @@ function inventory.Open()
 
 	inventory.ButtonOption(x, y)
 
-	inventory.ButtonTrade(x, y)
+	--inventory.ButtonTrade(x, y)
 
 	if IsInGroupStaff(ply) then
 		inventory.ButtonStaff(x, y)
@@ -150,7 +145,7 @@ end
 -- Panel Background, StaffMenu [Boolean], plyInfo for StaffMenu
 function inventory.Background(panel, title, customNumberItem)
 
-	local _numberItem = numberItem
+    local _numberItem = numberItem
 	if customNumberItem ~= nil then
 		_numberItem = customNumberItem
 	end
@@ -441,7 +436,7 @@ function inventory.ButtonStaff(x, y)
     buttonTrade:SetText("")
     buttonTrade:SetSize(25, 25)
     buttonTrade:DockMargin(10, 10, 10 ,10)
-	buttonTrade:SetPos(x - 155, 7)
+	buttonTrade:SetPos(x - 125, 7)
     buttonTrade.Paint = function(self, w, h)
         surface.SetDrawColor(0, 0, 0, 255)
         surface.DrawRect(0, 0, w, h)

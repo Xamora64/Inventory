@@ -32,6 +32,7 @@ end
 
 function IsInGroupStaff (ply)
 	local plyGroup = ply:GetUserGroup()
+	print(plyGroup)
 	for _, group in ipairs(config.acces_staff) do
 		if (group == plyGroup) then
 			return true
