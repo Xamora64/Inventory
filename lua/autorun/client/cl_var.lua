@@ -12,7 +12,6 @@ function changeVar(convarName, value)
     end
 
     if GetConVar(convarName) == nil then return end
-    //print("conVar: " .. GetConVar(convarName):GetString() .. ", value: " .. tostring(value) .. ", equal: " .. tostring(GetConVar(convarName):GetString() == tostring(value)))
     if GetConVar(convarName):GetString() != value then 
         DoNothing = true 
     end
@@ -22,10 +21,8 @@ end
 
 for name, conVar in pairs(ConVars) do
     cvars.AddChangeCallback(conVar:GetName(), function(convarName, valueOld, valueNew)
-        print(convarName .. ": " .. valueOld .. " => " .. valueNew)
 
         if DoNothing then DoNothing = false return end
-        print("1")
         if not IsInGroupStaff(LocalPlayer()) and not LocalPlayer():IsSuperAdmin()
         or (convarName == "table_access_staff" and not LocalPlayer():IsSuperAdmin())
         then
@@ -33,7 +30,6 @@ for name, conVar in pairs(ConVars) do
             return
         end
 
-        print("2")
         --print(convarName .. ": " .. valueOld .. " => " .. valueNew)
         if string.StartsWith(convarName, "number") then
             if tonumber(valueNew) == nil then return changeVar(convarName, valueOld) end
@@ -42,9 +38,7 @@ for name, conVar in pairs(ConVars) do
             net.WriteTable({convarName, valueNew})
             net.SendToServer()
         elseif string.StartsWith(convarName, "bool") then
-            print("3")
             if tobool(valueNew) == nil then return changeVar(convarName, valueOld) end
-            print("4")
 
             net.Start("config_bool")
             net.WriteTable({convarName, valueNew})
@@ -200,15 +194,9 @@ net.Receive("config", function ()
     refreshConfig()
 end)
 
-hook.Add("KeyPress", "key_press_use", function(ply, key)
+/*hook.Add("KeyPress", "key_press_use", function(ply, key)
     if (key == KEY_M) then
         if config == nil or type(config) != "table" then return end
         PrintTable(config)
     end
-end )
-
-hook.Add( "KeyPress", "keypress_jump_super", function( ply, key )
-    if ( key == IN_JUMP ) then
-        ply:SetVelocity( ply:GetVelocity() + Vector( 0, 0, 1000 ) )
-    end
-end )
+end )*/

@@ -23,7 +23,6 @@ for name, conVar in pairs(ConVars) do
         if string.StartsWith(convarName, "number") then
             UpdateConfigPlayers("config_number", {convarName, setConVarNumber(convarName, tonumber(valueNew)), 32})
         elseif string.StartsWith(convarName, "bool") then
-            print("0")
             UpdateConfigPlayers("config_bool", {convarName, setConVarBool(convarName, tobool(valueNew))})
         elseif string.StartsWith(convarName, "string") then
             UpdateConfigPlayers("config_string", {convarName, setConVarstring(convarName, valueNew)})
@@ -86,7 +85,6 @@ net.Receive("config_bool", function (len, ply)
     local name = netTable[1]
     local bool = tobool(netTable[2])
 
-    print("1")
     GetConVar(name):SetBool(bool)
 end)
 
@@ -117,7 +115,6 @@ end)
 function UpdateConfigPlayers(packet, sends)
     if packet == nil or sends == nil then return end
 
-    print("2")
     ConfigSave()
 
     for _, ply in ipairs(player.GetAll()) do
@@ -171,7 +168,7 @@ hook.Add("PlayerInitialSpawn", "InitConfig", function (ply)
     UpdateConfigPlayer(ply)
 end)
 
-hook.Add( "PlayerButtonDown", "key_get_group", function( ply, key )
+/*hook.Add( "PlayerButtonDown", "key_get_group", function( ply, key )
     
     if key == KEY_O then
         local group = ply:GetUserGroup()
@@ -181,4 +178,4 @@ hook.Add( "PlayerButtonDown", "key_get_group", function( ply, key )
         PrintTable(config)
     end
 
-end )
+end )*/

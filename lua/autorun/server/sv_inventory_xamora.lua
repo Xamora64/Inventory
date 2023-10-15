@@ -497,9 +497,7 @@ end )
 
 
 hook.Add( "PlayerButtonUp", "key_release_take_weapon", function( ply, key )
-
     if (key == GetKey(ply)["key_take"]) then
-
 		if ply.time_press_take_weapon == nil then return end
 		if CurTime() - ply.time_press_take_weapon >= config.timer_take_weapon and config.long_time_take_weapon then
 			if InvTakeWeapon(ply, ply:GetActiveWeapon()) then
