@@ -2,6 +2,13 @@ config = config or {}
 
 -- Both Side
 
+    -- /!\
+    -- If true, look config file. If false take config in game and save it
+    config.config = false
+    -- /!\
+
+    config.player_see_config = true
+
     -- Max place in inventory ( -1 = no limit )
     config.max = 20
 
@@ -11,8 +18,8 @@ config = config or {}
     -- default button to take a weapon or entity
     config.key_take = KEY_T
 
-    -- Acces to the inventory's menu staff
-    config.acces_staff = {"superadmin", "admin"}
+    -- Acces to the inventory's menu staff; Superadmins has all the rights all the time
+    config.access_staff = {"admin", "operator"}
 
 -- Client Side
 
@@ -35,8 +42,6 @@ config = config or {}
 
     -- gap between each case in y
     config.gap_y = 20
-
-if CLIENT and not IsInGroupStaff(LocalPlayer()) then return end
 
 -- Server Side
 

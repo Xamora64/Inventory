@@ -1,5 +1,4 @@
 local time_to_wait = 0.1
-local time_to_wait_inventory = config.long_time_use_timer
 
 local _P = FindMetaTable("Player")
 
@@ -65,7 +64,7 @@ hook.Add("PlayerCanPickupWeapon", "can_pickup", function(ply, weapon)
         return false
     end
 
-    if ply.pressed and CurTime() - ply.time_press > time_to_wait_inventory and config.long_time_use then
+    if ply.pressed and CurTime() - ply.time_press > config.long_time_use_timer and config.long_time_use then
         ply.time_press = CurTime()
         InvTakeWeapon(ply, weapon)
     end
@@ -98,7 +97,7 @@ hook.Add("PlayerCanPickupItem", "CanPickup", function(ply, ent)
         return true 
     end
 
-    if ply.pressed and CurTime() - ply.time_press > time_to_wait_inventory then
+    if ply.pressed and CurTime() - ply.time_press > config.long_time_use_timer then
         ply.time_press = CurTime()
         InvTakeEntity(ply, ent)
     end

@@ -31,9 +31,13 @@ if SERVER then
 end
 
 function IsInGroupStaff (ply)
+	if ply:IsSuperAdmin() then return true end
+	
 	local plyGroup = ply:GetUserGroup()
-	print(plyGroup)
-	for _, group in ipairs(config.acces_staff) do
+	if config.access_staff == nil then return end
+
+	for _, group in ipairs(config.access_staff) do
+		--print("group: " .. group .. " playerGroup: " .. plyGroup)
 		if (group == plyGroup) then
 			return true
 		end

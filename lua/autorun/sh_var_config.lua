@@ -13,8 +13,9 @@ ConVars = ConVars or {}
 
 local changed = false
 
+ConVars.bool_config = CreateConVar("bool_config", bool_to_number(config.config), FCVAR_PROTECTED, "If true, look config file. If false take config in game and save it", 0, 1)
 ConVars.number_max = CreateConVar("number_max", config.max, FCVAR_PROTECTED, "Inventory maximun slots for all player", -1, nil)
-ConVars.table_acces_staff = CreateConVar("table_acces_staff", table_to_string(config.acces_staff), FCVAR_PROTECTED, "Which group have acces to Staff Menu Inventory", nil, nil)
+ConVars.table_access_staff = CreateConVar("table_access_staff", table_to_string(config.access_staff), FCVAR_PROTECTED, "Which group have acces to Staff Menu Inventory", nil, nil)
 ConVars.bool_pickup = CreateConVar("bool_pickup", bool_to_number(config.pickup), FCVAR_PROTECTED, "Sytem pickup", 0, 1)
 ConVars.bool_long_time_use = CreateConVar("bool_long_time_use", bool_to_number(config.long_time_use), FCVAR_PROTECTED, "If the player press long time on E, put in inventory", 0, 1)
 ConVars.number_long_time_use_timer = CreateConVar("number_long_time_use_timer", config.long_time_use_timer, FCVAR_PROTECTED, "Time to wait when you long press on E to take an item", 0, nil)

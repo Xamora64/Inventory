@@ -221,7 +221,7 @@ net.Receive("inv_init", function(len, ply)
 end)
 
 
-hook.Add( "PlayerButtonDown", "keyPrintEntity", function( ply, key )
+/*hook.Add( "PlayerButtonDown", "keyPrintEntity", function( ply, key )
     if (key ~= KEY_P) then return end
 
 	local trace = ply:GetEyeTrace()
@@ -237,7 +237,7 @@ hook.Add( "PlayerButtonDown", "keyPrintEntity", function( ply, key )
     if ply.props_looked > 0 then
 		ply:ChatPrint("nameProp: " .. util.GetSurfacePropName(ply.props_looked))
 	end
-end)
+end)*/
 
 function InvPreTake(ply)
     local distance = ply:GetEyeTrace().Fraction * 100
@@ -319,6 +319,10 @@ function InvTakeWeapon(ply, weapon)
         end
     end
 
+    if config.max >= 0 then
+		if(ply.numberItem >= config.max) then InvLog(ply, "You have too many item(s)") return false end
+	end
+
     local clip1 = weapon:Clip1()
     local extra_ammo_clip1 = 0
     local id_ammo_clip1 = weapon:GetPrimaryAmmoType()
@@ -359,6 +363,10 @@ function InvTakeEntity(ply, entity)
             return false
         end
     end
+
+    if config.max >= 0 then
+		if(ply.numberItem >= config.max) then InvLog(ply, "You have too many item(s)") return false end
+	end
 
 	-- This avoids entity bugging
     if entity.XamoraInventory == nil then
