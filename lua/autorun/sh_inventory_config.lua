@@ -19,7 +19,7 @@ config = config or {}
     config.key_take = KEY_T
 
     -- Acces to the inventory's menu staff; Superadmins has all the rights all the time
-    config.access_staff = {"admin", "operator"}
+    config.access_staff = {"admin",}
 
 -- Client Side
 

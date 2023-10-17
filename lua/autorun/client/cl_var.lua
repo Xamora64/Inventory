@@ -2,7 +2,7 @@ local DoNothing = false
 local config_client = config_client or {}
 
 function changeVar(convarName, value)
-    print("convarName: " .. convarName .. ", value: " .. tostring(value))
+    //print("convarName: " .. convarName .. ", value: " .. tostring(value))
 
     if config_client[convarName] == nil then
     elseif config_client[convarName]:GetName() == "DCheckBoxLabel" then 
@@ -22,13 +22,16 @@ end
 for name, conVar in pairs(ConVars) do
     cvars.AddChangeCallback(conVar:GetName(), function(convarName, valueOld, valueNew)
 
+        print("0")
         if DoNothing then DoNothing = false return end
+        print("1")
         if not IsInGroupStaff(LocalPlayer()) and not LocalPlayer():IsSuperAdmin()
         or (convarName == "table_access_staff" and not LocalPlayer():IsSuperAdmin())
         then
             changeVar(convarName, valueOld)
             return
         end
+        print("2")
 
         --print(convarName .. ": " .. valueOld .. " => " .. valueNew)
         if string.StartsWith(convarName, "number") then
@@ -58,16 +61,23 @@ end
 
 hook.Add("PopulateToolMenu", "Inventory+", function()
     spawnmenu.AddToolMenuOption("Options", "Inventory+", "Inventory+", "Configuration", "", "", function(panel)
+
         panel:Clear()
-        
         panel:SetName("Inventory+ Configuration")
+
+        if (not config.player_see_config and not IsInGroupStaff(LocalPlayer())) then 
+            panel:Help("Not Allowed...")
+            return
+        end
+
         panel:Help("Only players with a group in 'Staff Access' can edit this configuration and superadmin")
 
         panel:Help("")
         panel:Help("If true, look config file. If false take config in game and save it")
         config_client.bool_config = panel:CheckBox( "Configuration File", "bool_config" )
+        config_client.bool_player_see_config = panel:CheckBox( "Players can see the configs", "bool_player_see_config" )
         panel:ControlHelp("")
-        panel:ControlHelp("Note: Need restart if you want use the config file")
+        panel:ControlHelp("↑ Note: Need restart to works ↑")
         
         panel:Help("")
         panel:Help("(Note: Only SuperAdmin for this)")

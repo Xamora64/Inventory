@@ -14,6 +14,7 @@ ConVars = ConVars or {}
 local changed = false
 
 ConVars.bool_config = CreateConVar("bool_config", bool_to_number(config.config), FCVAR_PROTECTED, "If true, look config file. If false take config in game and save it", 0, 1)
+ConVars.bool_player_see_config = CreateConVar("bool_player_see_config", bool_to_number(config.player_see_config), FCVAR_PROTECTED, "Players can see the config in Tool menu", 0, 1)
 ConVars.number_max = CreateConVar("number_max", config.max, FCVAR_PROTECTED, "Inventory maximun slots for all player", -1, nil)
 ConVars.table_access_staff = CreateConVar("table_access_staff", table_to_string(config.access_staff), FCVAR_PROTECTED, "Which group have acces to Staff Menu Inventory", nil, nil)
 ConVars.bool_pickup = CreateConVar("bool_pickup", bool_to_number(config.pickup), FCVAR_PROTECTED, "Sytem pickup", 0, 1)
