@@ -22,16 +22,13 @@ end
 for name, conVar in pairs(ConVars) do
     cvars.AddChangeCallback(conVar:GetName(), function(convarName, valueOld, valueNew)
 
-        print("0")
         if DoNothing then DoNothing = false return end
-        print("1")
         if not IsInGroupStaff(LocalPlayer()) and not LocalPlayer():IsSuperAdmin()
         or (convarName == "table_access_staff" and not LocalPlayer():IsSuperAdmin())
         then
             changeVar(convarName, valueOld)
             return
         end
-        print("2")
 
         --print(convarName .. ": " .. valueOld .. " => " .. valueNew)
         if string.StartsWith(convarName, "number") then
@@ -166,8 +163,6 @@ net.Receive("config_table", function ()
     local name = netTable[1]
     local tbl = netTable[2]
 
-    print(netTable)
-    print(name)
     if name == nil or tbl == nil then return end
 
     local key = string.sub(name, 7, -1)
