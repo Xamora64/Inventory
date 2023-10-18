@@ -145,6 +145,7 @@ function inventory.StaffShow()
             surface.DrawRect(0, 0, w, h)
 
 			local name = plyInfo.name
+			if name == nil then name = "Error" end
 			if string.len(name) > 15 then
 				name = string.sub(name, 0, 14)
 				name = name .. "."
