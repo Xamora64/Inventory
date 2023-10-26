@@ -82,6 +82,7 @@ hook.Add("PopulateToolMenu", "Inventory+", function()
         panel:Help("")
 
         config_client.number_max = panel:TextEntry( "Max Slots Inventory", "number_max" )
+        config_client.number_max_bank = panel:TextEntry( "Max Slots Bank", "number_max_bank")
         config_client.bool_pickup = panel:CheckBox( "PickUp System", "bool_pickup" )
         config_client.bool_can_pickup_same_weapon = panel:CheckBox( "Players can pickup same weapon", "bool_can_pickup_same_weapon" )
         config_client.bool_long_time_use = panel:CheckBox( "Long time press 'Use Item' button put in inventory", "bool_long_time_use" )

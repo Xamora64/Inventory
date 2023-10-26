@@ -97,12 +97,6 @@ function send_message_looked_death(ply, message)
     ply:ChatPrint(message)
 end
 
-function len_table(table)
-    local count = 0
-    for _ in pairs(table) do count = count + 1 end
-    return count
-end
-
 function ENT:Use(activator, caller, use_type, value)
 	if self.inv == nil then return end
     if len_table(self.inv) <= 0 then self:Remove() send_message_looked_death(activator, "There is no longer any item") return end

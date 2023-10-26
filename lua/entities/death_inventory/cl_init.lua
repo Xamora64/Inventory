@@ -16,11 +16,9 @@ net.Receive("dead_open", function()
 	local numberItem = readTable.numberItem
 
     if IsValid(inventory.Dead) then inventory.Dead:Remove() end
-    inventory.Dead = vgui.Create("DFrame")
+	local x, y = 0, 0
+	inventory.Dead, x, y = inventory.Background("Inventory of a dead", numberItem)
 	table.insert(Panels, inventory.Dead)
-	inventory.Background(inventory.Dead, "Inventory of a dead", numberItem)
-
-    local x, y = inventory.Dead:GetSize()
 
 	inventory.ButtonClose(x - 65, 7, inventory.Dead, function ()
 		if IsValid(inventory.Dead) then inventory.Dead:Remove() end

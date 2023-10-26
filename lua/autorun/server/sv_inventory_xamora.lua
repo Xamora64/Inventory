@@ -1,9 +1,7 @@
 local nets = {
     "inv_init",
-    "inv_give",
     "inv_use",
     "inv_drop",
-    "inv_remove",
     "inv_max",
     "inv_numberItem",
     "inv_sync",
@@ -266,7 +264,7 @@ function InvPreTake(ply)
 end
 
 function SyncNumberItem(ply)
-	local numberItem = GetSizeTable(GetInv(ply))
+	local numberItem = len_table(GetInv(ply))
     ply.numberItem = numberItem
     net.Start("inv_numberItem")
     net.WriteInt(numberItem, 32)
@@ -285,9 +283,6 @@ function InvTakeOnDeath(ply, new_item)
     SyncNumberItem(ply)
 
     table.insert(GetInv(ply), new_item)
-    net.Start("inv_give")
-    net.WriteTable(new_item)
-    net.Send(ply)
     InvSave(ply)
 
     InvLog(ply, "Succesfully picked up item " .. new_item.classname)
@@ -303,9 +298,6 @@ function InvGive(ply, new_item)
     SyncNumberItem(ply)
 
     table.insert(GetInv(ply), new_item)
-    net.Start("inv_give")
-    net.WriteTable(new_item)
-    net.Send(ply)
     InvSave(ply)
 
     InvLog(ply, "Succesfully picked up item " .. new_item.classname)
@@ -407,16 +399,13 @@ end
 
 function InvRemoveItem(ply, id)
 
-	local entityRemoved = GetInv(ply)[id]
+	local itemRemoved = GetInv(ply)[id]
     GetInv(ply)[id] = nil
 
     SyncNumberItem(ply)
 
-    net.Start("inv_remove")
-    net.WriteInt(id, 32)
-    net.Send(ply)
     InvSave(ply)
-	return entityRemoved
+	return itemRemoved
 end
 
 inventory.UseTypes = {
@@ -545,6 +534,7 @@ local staff_nets = {
 
 		-- Format : "IDItem~ID64"
 		"inv_staff_remove", -- Remove one item 
+        "bank_staff_remove",
 
 	-- Send
 		-- Format : Table -> Inv; String -> ID64
@@ -578,14 +568,17 @@ end)
 
 -- "inv_send"
 function SendInvPlayer(asker, ID64)
-    net.Start("inv_send")
 	InvLoadID(ID64)
+    BankLoadID(ID64)
 	local inv = GetInvID64(ID64)
+    local bank = GetBankID64(ID64)
 	local send = {
 		inv = inv,
-		numberItem = GetSizeTable(inv),
+		numberItem = len_table(inv),
+        bank = bank,
 		ID64 = ID64,
 	}
+    net.Start("inv_send")
 	net.WriteTable(send)
     net.Send(asker)
 end
@@ -603,7 +596,8 @@ function SendInvPlayersOnline(asker)
 		invs[ply:SteamID64()] = {
 			name = ply:Name(),
 			inv = GetInv(ply),
-			numberItem = GetSizeTable(GetInv(ply)),
+            bank = GetBank(ply),
+			numberItem = len_table(GetInv(ply)),
 		}
 	end
 	net.Start("inv_sends_online")
@@ -625,10 +619,12 @@ function SendInvPlayersAll(asker)
 	local sends = {}
 
 	for ID64, inv in pairs(invs) do
+        BankLoadID(ID64)
 		sends[ID64] = {
 			name = names[ID64],
 			inv = inv,
-			numberItem = GetSizeTable(inv),
+            bank = GetBankID64(ID64),
+			numberItem = len_table(inv),
 		}
 	end
 
@@ -647,10 +643,22 @@ net.Receive("inv_staff_remove", function(len, ply)
 	local IDItem = tonumber(splitMessage[1])
 	local ID64 = splitMessage[2]
 
-    print(IDItem)
-    print(ID64)
-
 	InvRemoveItemID64(ID64, IDItem)
+
+	SendInvPlayer(ply, ID64)
+end)
+
+-- "bank_staff_remove"
+net.Receive("bank_staff_remove", function(len, ply)
+	if not CheckPermission(ply) then
+		return
+	end
+
+	local splitMessage = split(net.ReadString(), "~")
+	local IDItem = tonumber(splitMessage[1])
+	local ID64 = splitMessage[2]
+
+	BankRemoveID64(ID64, IDItem)
 
 	SendInvPlayer(ply, ID64)
 end)
@@ -668,10 +676,7 @@ function InvRemoveItemID64(ID64, IDItem)
 	local ply = player.GetBySteamID64(ID64)
 	if ply then
 		SyncNumberItem(ply)
-		net.Start("inv_remove")
-		net.WriteInt(ID64, 32)
-		net.Send(ply)
-        InvSync(ply)
+        InvSave(ply)
 	end
 
 	return entityRemoved
@@ -688,14 +693,6 @@ net.Receive("inv_clear", function (len, ply)
 	local victim = player.GetBySteamID64(net.ReadString())
 	InvClear(victim)
 end)
-
-function GetSizeTable(table)
-	local size = 0
-	for _, _ in pairs(table) do
-		size = size + 1
-	end
-	return size
-end
 
 function GiveItemToOtherPlayer(giver, taker, id, notice)
 

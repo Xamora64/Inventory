@@ -23,22 +23,7 @@ surface.CreateFont( "roboto_big", {
 	size = 34,
 } )
 
-local inv = inv or {}
-
-net.Receive("inv_give", function()
-    local new_item = net.ReadTable()
-    table.insert(inv, new_item)
-end)
-
-net.Receive("inv_remove", function()
-    local id = net.ReadInt(32)
-    inv[id] = nil 
-end)
-
-net.Receive("inv_remove", function()
-    local id = net.ReadInt(32)
-    inv[id] = nil 
-end)
+inv = inv or {}
 
 concommand.Add("inv_sync", function()
     net.Start("inv_sync")
@@ -51,6 +36,7 @@ net.Receive("inv_sync", function()
 
     inv = readTable
     if IsValid(inventory.Menu) then inventory.Open() end
+    if IsValid(inventory.InventoryBank) then OpenInventoryBank() end
 end)
 
 local numberItem = numberItem or 0
@@ -77,20 +63,18 @@ end)
 -- Panels of the inventory
 Panels = {}
 
-function inventory.Open()
+function inventory.Open(x, y)
 
     local ply = LocalPlayer()
 
-    local plyinv = inv
-    if not plyinv then return end
+    if not inv then return end
     if IsValid(inventory.Menu) then inventory.Menu:Remove() end
 
-    inventory.Menu = vgui.Create("DFrame")
-	inventory.Background(inventory.Menu, "Inventory")
-
-    local x, y = inventory.Menu:GetSize()
-
-	Panels = {}
+    if x == nil or y == nil then
+        inventory.Menu, x, y = inventory.Background("Inventory")
+    else
+        inventory.Menu, x, y = inventory.BackgroundPos("Inventory", nil, x, y)
+    end
 
 	inventory.ButtonClose(x - 65, 7, inventory.Menu, inventory.Close)
 
@@ -138,21 +122,31 @@ function inventory.Open()
 	end
 	table.insert(buttonsItems, dropButton)
 
-	inventory.Inventory(inventory.Menu, x, y, plyinv, buttonsItems)
+	inventory.Inventory(inventory.Menu, x, y, inv, buttonsItems)
 
 end
 
--- Panel Background, StaffMenu [Boolean], plyInfo for StaffMenu
-function inventory.Background(panel, title, customNumberItem)
-
+-- Title, numberItem, isCenter, X position, Y position, Width, Height
+function inventory.BackgroundCustom(title, customNumberItem, maxNumberItem, center, x, y, w, h)
     local _numberItem = numberItem
 	if customNumberItem ~= nil then
 		_numberItem = customNumberItem
 	end
 
     local scrw, scrh = ScrW(), ScrH()
-    panel:SetSize(scrw * 0.5, scrh * 0.6)
-    panel:Center()
+    local panel = vgui.Create("DFrame")
+
+    if w == nil or h == nil then 
+        panel:SetSize(scrw * 0.5, scrh * 0.6)
+    else
+        panel:SetSize(w, h)
+    end
+
+    if center then panel:Center()
+    else
+        panel:SetPos(x, y)
+    end
+
     panel:SetTitle("")
 	panel:MakePopup()
     panel:SetDraggable(true)
@@ -161,12 +155,30 @@ function inventory.Background(panel, title, customNumberItem)
         surface.SetDrawColor(0, 0, 0, 220)
         surface.DrawRect(0, 0, w, h)
         surface.DrawRect(0, 0, w, 40)
-        if config.max >= 0 then 
-            draw.SimpleText(title .. " " .. tostring(_numberItem) .. "/" .. tostring(config.max), "roboto_big", 10, 2, Color(255, 255, 255),  TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT)
+        if maxNumberItem >= 0 then 
+            draw.SimpleText(title .. " " .. tostring(_numberItem) .. "/" .. tostring(maxNumberItem), "roboto_big", 10, 2, Color(255, 255, 255),  TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT)
         else 
             draw.SimpleText(title .. " ", "roboto_big", 10, 2, Color(255, 255, 255),  TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT)
         end
     end
+
+    local x, y = panel:GetSize()
+    return panel, x, y
+end
+
+-- Title, numberItem
+function inventory.Background(title, customNumberItem)
+    return inventory.BackgroundCustom(title, customNumberItem, config.max, true)
+end
+
+-- Title, numberItem
+function inventory.BackgroundPos(title, customNumberItem, x, y)
+    return inventory.BackgroundCustom(title, customNumberItem, config.max, false, x, y)
+end
+
+-- Title, numberItem
+function inventory.BackgroundPosSize(title, customNumberItem, x, y, w, h)
+    return inventory.BackgroundCustom(title, customNumberItem, config.max, false, x, y, w, h)
 end
 
 -- Panel Parent, x, y, Inventory to print, list of button in item, StaffMenu [Boolean], plyInfo for StaffMenu
@@ -382,17 +394,27 @@ end
 
 hook.Add("PreRender", "close_on_escape", function()
 	if input.IsKeyDown(KEY_ESCAPE) and gui.IsGameUIVisible() then
-		inventory.Close()
+		if inventory.Close() then
+            gui.HideGameUI()
+        end
 	end
 end)
 
 function inventory.Close()
-	if IsValid(inventory.Menu) then inventory.Menu:Close() end
+    local closing_something = false
+	if IsValid(inventory.Menu) then 
+        inventory.Menu:Close() 
+        closing_something = true
+    end
 	if (Panels) then
 		for _, panel in ipairs(Panels) do
-			if IsValid(panel) then panel:Close() end
+			if IsValid(panel) then 
+                panel:Close() 
+                closing_something = true
+            end
 		end
 	end
+    return closing_something
 end
 
 function inventory.ButtonClose(x, y, parent, functionClose)
@@ -449,8 +471,15 @@ function inventory.ButtonStaff(x, y)
 	end
 end
 
+function inventory.AskSync()
+    net.Start("inv_sync")
+    net.SendToServer()
+end
+
 net.Receive("key_open", function()
     net.Start("inv_sync")
     net.SendToServer()
+
+    Panels = {}
     inventory.Open()
 end)

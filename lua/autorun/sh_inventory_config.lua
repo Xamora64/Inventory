@@ -21,6 +21,12 @@ config = config or {}
     -- Acces to the inventory's menu staff; Superadmins has all the rights all the time
     config.access_staff = {"admin",}
 
+    -- Model 3D for the bank
+    config.model_bank = "models/Gibs/HGIBS.mdl"
+
+    -- Max place in bank for each player
+    config.max_bank = 10
+
 -- Client Side
 
     -- if size of case is relative (same size for all screen)
@@ -105,6 +111,3 @@ config = config or {}
     -- Blacklist entity in inventory by classname
     -- ex config.blacklist_entity = {"item_ammo_357"}
     config.blacklist_entity = {}
-
-    -- Model 3D for the bank
-    config.model_bank = "models/props_wasteland/controlroom_storagecloset001a.mdl"

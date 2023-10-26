@@ -1,6 +1,6 @@
 local showOffline = false
 
--- Format : [ID64] : name, inv, numberItem
+-- Format : [ID64] : name, inv, numberItem, bank
 local invs = invs or {}
 local x = x or 0
 local y = y or 0
@@ -135,12 +135,22 @@ function inventory.StaffShow()
 	local gapY = 1
 
 	for ID64, plyInfo in pairs(invs) do
-		local buttonPlayer = vgui.Create("DButton", scroll)
-        buttonPlayer:SetSize(sizeX, 30)
-        buttonPlayer:SetPos(0, posY)
-        buttonPlayer:SetText("")
+		local inventoryPlayer = vgui.Create("DPanel", scroll)
+        inventoryPlayer:SetSize(sizeX, 30)
+        inventoryPlayer:SetPos(0, posY)
+        inventoryPlayer:SetText("")
 
-        buttonPlayer.Paint = function(self, w, h)
+		local buttonBank = vgui.Create("DButton", inventoryPlayer)
+		buttonBank:SetSize(50, 22)
+        buttonBank:SetPos(sizeX - 70, 5)
+        buttonBank:SetText("")
+
+		local buttonInv = vgui.Create("DButton", inventoryPlayer)
+		buttonInv:SetSize(150, 22)
+        buttonInv:SetPos(sizeX - 225, 5)
+        buttonInv:SetText("")
+
+        inventoryPlayer.Paint = function(self, w, h)
 			surface.SetDrawColor(100, 100, 100, 200)
             surface.DrawRect(0, 0, w, h)
 
@@ -151,14 +161,34 @@ function inventory.StaffShow()
 				name = name .. "."
 			end
 			draw.SimpleText(name, "roboto_middle_small", 4, 6, Color(255, 255, 255))
+		end
+
+		buttonBank.Paint = function (self, w, h)
+			surface.SetDrawColor(0, 0, 0, 255)
+            surface.DrawRect(0, 0, w, h)
+
+			draw.SimpleText("Bank", "roboto_middle_small", 8, 1, Color(255, 255, 255))
+		end
+
+		buttonBank.DoClick = function ()
+			net.Start("inv_ask")
+			net.WriteString(ID64)
+			net.SendToServer()
+			inventory.StaffBank(plyInfo, ID64)
+		end
+
+		buttonInv.Paint = function (self, w, h)
+			surface.SetDrawColor(0, 0, 0, 255)
+            surface.DrawRect(0, 0, w, h)
+
 			if config.max > 0 then
-				draw.SimpleText(plyInfo.numberItem .. "/" .. config.max .. " items", "roboto_middle_small", w / 2, 6, Color(255, 255, 255))
+				draw.SimpleText("Inventory " .. plyInfo.numberItem .. "/" .. config.max .. " items", "roboto_middle_small", 8, 1, Color(255, 255, 255))
 			else
-				draw.SimpleText(plyInfo.numberItem .. " items", "roboto_middle_small", w / 2, 6, Color(255, 255, 255))
+				draw.SimpleText("Inventory " .. plyInfo.numberItem .. " items", "roboto_middle_small", 8, 1, Color(255, 255, 255))
 			end
 		end
 
-		buttonPlayer.DoClick = function ()
+		buttonInv.DoClick = function ()
 			net.Start("inv_ask")
 			net.WriteString(ID64)
 			net.SendToServer()
@@ -172,9 +202,8 @@ end
 function inventory.StaffInv(plyInfo, ID64)
 
 	if IsValid(inventory.panelStaffInv) then inventory.panelStaffInv:Close() end
-	inventory.panelStaffInv = vgui.Create("DFrame")
+	inventory.panelStaffInv = inventory.Background("Inventory of " .. plyInfo.name, plyInfo.numberItem)
 	table.insert(Panels, inventory.panelStaffInv)
-	inventory.Background(inventory.panelStaffInv, "Inventory of " .. plyInfo.name, plyInfo.numberItem)
 
 	inventory.ButtonClose(x - 65, 7, inventory.panelStaffInv, function ()
 		if IsValid(inventory.panelStaffInv) then inventory.panelStaffInv:Close() end
@@ -205,6 +234,41 @@ function inventory.StaffInv(plyInfo, ID64)
 	inventory.Inventory(inventory.panelStaffInv, x, y, plyInfo.inv, buttonsItems)
 end
 
+function inventory.StaffBank(plyInfo, ID64)
+
+	if IsValid(inventory.panelStaffBank) then inventory.panelStaffBank:Close() end
+	inventory.panelStaffBank = inventory.BackgroundCustom("Bank of " .. plyInfo.name, len_table(plyInfo.bank), config.max_bank, true)
+	table.insert(Panels, inventory.panelStaffBank)
+
+	inventory.ButtonClose(x - 65, 7, inventory.panelStaffBank, function ()
+		if IsValid(inventory.panelStaffBank) then inventory.panelStaffBank:Close() end
+	end)
+
+	local buttonsItems = {}
+
+	local removeButton = {}
+	removeButton["ID64"] = ID64
+	removeButton["sizeX"] = 70
+	removeButton["sizeY"] = 30
+	removeButton["addX"] = 0
+	removeButton["addY"] = 0
+	removeButton["paint"] = function(self, w, h)
+		surface.SetDrawColor(0, 0, 0, 255)
+		surface.DrawRect(0, 0, w, h)
+		draw.SimpleText("Remove", "roboto_middle_small", w / 2, h / 2, Color(255, 255, 255),  TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end
+	removeButton["doClick"] = function()
+			net.Start("bank_staff_remove")
+			local message = removeButton.idItem .. "~" .. removeButton.ID64
+			net.WriteString(message)
+			net.SendToServer()
+	end
+	table.insert(buttonsItems, removeButton)
+
+    local x, y = inventory.panelStaffBank:GetSize()
+	inventory.Inventory(inventory.panelStaffBank, x, y, plyInfo.bank, buttonsItems)
+end
+
 function StaffRefresh(plyInfo, ID64)
 		if IsValid(inventory.panelStaff) then
 			inventory.Staff(x, y)
@@ -214,6 +278,10 @@ function StaffRefresh(plyInfo, ID64)
 
 		if IsValid(inventory.panelStaffInv) then
 			inventory.StaffInv(plyInfo, ID64)
+		end
+
+		if IsValid(inventory.panelStaffBank) then
+			inventory.StaffBank(plyInfo, ID64)
 		end
 end
 
@@ -246,10 +314,11 @@ end)
 net.Receive("inv_send", function()
 	local readTable = net.ReadTable()
 	local ID64 = readTable.ID64
-	local inv = readTable.inv
-	if inv == invs[ID64] then return end
 
-	invs[ID64].inv = inv
+	if readTable.bank == invs[ID64].bank and readTable.inv == invs[ID64].inv then return end
+
+	invs[ID64].bank = readTable.bank
+	invs[ID64].inv = readTable.inv
 	invs[ID64].numberItem = readTable.numberItem
 	StaffRefresh(invs[ID64], ID64)
 end)
