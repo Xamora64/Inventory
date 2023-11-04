@@ -245,6 +245,7 @@ function inventory.Inventory(parent, x, y, inv, buttonsItems)
         itemPanel.DoClick = function()
             if clicked then 
                 if IsValid(name) then name:Remove() end
+                if IsValid(bullet) then bullet:Remove() end
 				for _, button in ipairs(buttonsItems) do
 					if IsValid(button.panel) then button.panel:Remove() end
 				end
@@ -254,10 +255,10 @@ function inventory.Inventory(parent, x, y, inv, buttonsItems)
             item_clicked = id
             clicked = true
 
+            local x, y = itemPanel:GetPos()
+
             if itemData.name then
-                local x, y = itemPanel:GetPos()
                 name = vgui.Create("DPanel", itemPanel)
-                name:SetText(itemData.name)
                 local width = 10 + string.len(itemData.name) * 6
                 name:SetSize(width, 20)
                 name:Center()
@@ -267,6 +268,21 @@ function inventory.Inventory(parent, x, y, inv, buttonsItems)
                     draw.SimpleText(itemData.name, "roboto_small", w / 2, h / 2, Color(255, 255, 255),  TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                 end
             end
+
+            if itemData.type == "weapon" then
+                bullet = vgui.Create("DPanel", itemPanel)
+                local maxClip1 = itemData.maxClip1 or "?"
+                local width = 20 + string.len(itemData.clip1) + string.len(maxClip1) * 6
+                bullet:SetSize(width, 20)
+                bullet:Center()
+                local bulletX, bulletY = bullet:GetPos()
+                bullet:SetPos(bulletX, bulletY + 25)
+                bullet.Paint = function(self, w, h)
+                    surface.SetDrawColor(255, 255, 255, 10)
+                    surface.DrawRect(0, 0, w, h)
+                    draw.SimpleText(itemData.clip1 .. "/" .. maxClip1, "roboto_small", w / 2, h / 2, Color(255, 255, 255),  TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                end
+            end
         end
 
 
@@ -274,6 +290,7 @@ function inventory.Inventory(parent, x, y, inv, buttonsItems)
 
             if clicked then
                 if IsValid(name) then name:Remove() end
+                if IsValid(bullet) then bullet:Remove() end
 				for _, button in ipairs(buttonsItems) do
 					if IsValid(button.panel) then button.panel:Remove() end
 				end

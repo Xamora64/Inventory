@@ -8,12 +8,14 @@ if SERVER then
 		weapon = function(itemData, ply)
 			if ply:HasWeapon(itemData.classname) then InvLog(ply, "You already have the weapon") return false end
 			ply:Give(itemData.classname, true)
-			if itemData.extra_ammo_clip1 > 0 then ply:GiveAmmo(itemData.extra_ammo_clip1, itemData.id_ammo_clip1) end
-			if itemData.extra_ammo_clip2 > 0 then ply:GiveAmmo(itemData.extra_ammo_clip2, itemData.id_ammo_clip2) end
-			if(ply:HasWeapon(itemData.classname)) then
-				ply:GetWeapon(itemData.classname):SetClip1(itemData.clip1)
-				ply:GetWeapon(itemData.classname):SetClip2(itemData.clip2)
-			end
+			timer.Simple(0.1, function()
+				if itemData.extra_ammo_clip1 > 0 then ply:GiveAmmo(itemData.extra_ammo_clip1, itemData.id_ammo_clip1) end
+				if itemData.extra_ammo_clip2 > 0 then ply:GiveAmmo(itemData.extra_ammo_clip2, itemData.id_ammo_clip2) end
+				if(ply:HasWeapon(itemData.classname)) then
+					ply:GetWeapon(itemData.classname):SetClip1(itemData.clip1)
+					ply:GetWeapon(itemData.classname):SetClip2(itemData.clip2)
+				end
+			end)
 			return true
 		end,
 		model = function(itemData, ply)

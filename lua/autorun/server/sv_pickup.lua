@@ -10,6 +10,7 @@ function _P:Give(classname)
         ent.GiveTo = self
         ent:Spawn()
         timer.Simple(0.01, function() self:SelectWeapon(classname) end)
+        timer.Simple(0.01, function() ent.GiveTo = nil end)
     end)
 end
 
@@ -43,7 +44,7 @@ hook.Add("PlayerCanPickupWeapon", "can_pickup", function(ply, weapon)
     if not config.pickup then return end
 
     if ply.time_respawn == CurTime() then 
-        return true 
+        return true
     end
 
     if (IsValid(weapon.GiveTo)) then

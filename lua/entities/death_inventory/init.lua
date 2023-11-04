@@ -81,7 +81,7 @@ function open_looked_death(ply, inv)
     net.Start("dead_open")
 	local send = {
 		inv = inv,
-		numberItem = GetSizeTable(inv),
+		numberItem = len_table(inv),
 	}
     net.WriteTable(send)
     net.Send(ply)

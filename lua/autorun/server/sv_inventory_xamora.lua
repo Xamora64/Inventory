@@ -315,20 +315,23 @@ function InvTakeWeapon(ply, weapon)
 		if(ply.numberItem >= config.max) then InvLog(ply, "You have too many item(s)") return false end
 	end
 
+
     local clip1 = weapon:Clip1()
+    local maxClip1 = weapon:GetMaxClip1()
     local extra_ammo_clip1 = 0
     local id_ammo_clip1 = weapon:GetPrimaryAmmoType()
-    if clip1 > weapon:GetMaxClip1() then 
-        extra_ammo_clip1 = clip1 - weapon:GetMaxClip1()
-        clip1 = weapon:GetMaxClip1() 
+    if clip1 > maxClip1 then 
+        extra_ammo_clip1 = clip1 - maxClip1
+        clip1 = maxClip1
     end 
 
     local clip2 = weapon:Clip2()
+    local maxClip2 = weapon:GetMaxClip2()
     local extra_ammo_clip2 = 0
     local id_ammo_clip2 = weapon:GetSecondaryAmmoType()
-    if clip2 > weapon:GetMaxClip2() then 
-        extra_ammo_clip2 = clip2 - weapon:GetMaxClip2()
-        clip2 = weapon:GetMaxClip2() 
+    if clip2 > maxClip2 then 
+        extra_ammo_clip2 = clip2 - maxClip2
+        clip2 = maxClip2 
     end
 
     local new_item = {
@@ -336,13 +339,17 @@ function InvTakeWeapon(ply, weapon)
         classname = weapon:GetClass(),
         model = weapon:GetModel(),
         clip1 = clip1,
+        maxClip1 = maxClip1,
         extra_ammo_clip1 = extra_ammo_clip1,
         id_ammo_clip1 = id_ammo_clip1,
         clip2 = clip2,
+        maxClip2 = maxClip2,
         extra_ammo_clip2 = extra_ammo_clip2,
         id_ammo_clip2 = id_ammo_clip2,
         type = "weapon",
     }
+
+    PrintTable(new_item)
 
     weapon:Remove()
     return InvGive(ply, new_item)
